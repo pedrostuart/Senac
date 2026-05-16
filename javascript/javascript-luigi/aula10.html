@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Aula 10 - WCAG Prático (Estilos e Animações)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #modal-foco {
+            margin-top: 550px;
+        }
+
+        /* -------------------------------------------------
+        TÓPICO 1: ESTADO DE FOCO VISÍVEL (OPERÁVEL)
+        -------------------------------------------------
+        */
+
+        /* NUNCA FAÇA ISSO! (codigo que eu coloquei embaixo dessa explicação) 
+           Remover o 'outline' (contorno) sem fornecer uma alternativa
+           torna o site praticamente impossível de navegar pelo teclado.
+        */
+        /* // esse codigo
+        a:focus, button:focus {
+            outline: none; 
+        }
+        */
+
+        /* O JEITO MODERNO E CORRETO:
+           :focus-visible só mostra o contorno quando o usuário
+           está navegando com o teclado (ex: tecla 'Tab'),
+           e não quando ele apenas clica com o mouse.
+        */
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid blue;
+            outline-offset: 3px;
+            box-shadow: 0 0 5px 2px skyblue;
+        }
+
+
+
+
+
+
+        /* -------------------------------------------------
+        TÓPICO 2: ANIMAÇÕES SEGURAS (prefers-reduced-motion)
+        -------------------------------------------------
+        */
+        .box-animado {
+            width: 100px;
+            height: 100px;
+            background-color: rebeccapurple;
+            margin-top: 20px;
+            
+            /* Uma animação de "chacoalhar" */
+            animation: shake 0.8s infinite; 
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* A MÍDIA QUERY MÁGICA (WCAG 2.3.3)
+           Se o usuário pediu "movimento reduzido" no seu
+           sistema operacional (por ter distúrbios vestibulares,
+           labirintite, etc), nós RESPEITAMOS isso.
+        */
+        @media (prefers-reduced-motion: reduce) {
+            /* Desligamos TODAS as animações que não são essenciais */
+            .box-animado {
+                animation: none;
+            }
+            
+            /* Também vale para transições! */
+            * {
+                transition: none !important;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Aula 10: WCAG Prático (Estilos e Animações)</h1>
+    <p>Vamos aplicar o que aprendemos de WCAG e mostrar exemplos de como fazer isso funcionar com JS!</p>
+    <div id="div-focavel">
+        <a href="#">Link 1 (teste com 'Tab')</a>
+        <button id="btn-foco">Botão 1 (teste com 'Tab')</button>
+        <button id="btn-sem-foco">Botão 2 (DESAFIO)</button>
+    </div>
+    <hr>
+
+    <h3>Animações e Movimento</h3>
+    <div class="box-animado"></div>
+    <p>Este box chacoalha... a menos que você peça para parar.</p>
+
+    <hr>
+
+    <h3>Cores e Contraste</h3>
+    <p id="texto-contraste-ruim" style="color: #aaaaaa;">Eu sou um texto difícil de ler.</p>
+    <form id="campo-erro">
+        <label for="email">Email:</label>
+        <input id="email" type="text" aria-invalid="mensagem-de-erro">
+        <button type="submit" id="btn">Enviar</button>
+        <span id="msg-erro" style="display: none;">Email inválido.</span>
+    </form>
+
+    <div id="modal-foco">
+        <p>ola</p>
+    </div>
+
+</body>
+
+<script>
+// Nas aulas anteriores, focamos em FAZER funcionar.
+// Nesta aula, iremos usar alguns exemplos de como adequar um site ao wcag usando javascript
+// é com esse tipo de conhecimento que começamos a diferenciar um "programador" e um "desenvolvedor web profissional".
+
+//------------------------------------------------------------
+// Tópico 1: Estado de Foco Visível (WCAG 2.4.7)
+// Princípio: OPERÁVEL.
+// "Quem usa o teclado precisa saber ONDE ESTÁ."
+
+// O 'outline' (contorno) é o "cursor do mouse" para quem usa o teclado.
+// Nós já arrumamos isso no CSS com ':focus-visible'.
+
+// O que o JS tem a ver com isso?
+
+// Às vezes, você cria um "botão" usando uma <div>.
+// <div id="meu-botao-falso">Clique aqui!</div>
+
+// Uma <div> NÃO é "focável" por padrão.
+// O usuário de teclado NUNCA vai conseguir "pousar" nela.
+
+// Para "consertar" isso (embora usar <button> seja 99% melhor),
+// você teria que adicionar 'tabindex="0"' no HTML.
+// <div ... tabindex="0">
+
+// O JS entra quando precisamos GERENCIAR o foco.
+// Ex: Quando um Modal abre, o JS deve MOVER o foco para ele.
+// (utilizando o '.focus()')
+
+// Exemplo:
+//document.querySelector("#meu-modal").focus();
+
+
+//desafios
+
+// 1. faça com que o "Botão 2" se torne "ruim".
+//    Capture o botão com id "btn-sem-foco".
+//    Adicione um 'style' via JS que REMOVA o 'outline'.
+//    (Ex: botao.style.outline = 'none';)
+//    Agora, tente navegar para ele com 'Tab'. Veja como ele
+//    "desaparece"? Acabamos de quebrar a acessibilidade.
+//    (nunca deixe isso acontecer em um projeto real!!!)
+
+let btnRuim = document.getElementById("btn-sem-foco")
+console.log(btnRuim)
+btnRuim.style.outline = 'none'
+
+//2. faça com que a div com o id 'modal-foco' seja focavel e que a tela se dirija a ela quando for selecionada
+
+let modalFoco = document.getElementById('modal-foco')
+modalFoco.focus()
+
+//------------------------------------------------------------
+// Tópico 2: Animações Seguras (WCAG 2.3.3)
+// Princípio: OPERÁVEL / SEGURO
+// "Não me dê tontura ou convulsões."
+
+// 1. Flash: Nada pode piscar mais de 3 vezes por segundo (WCAG 2.3.1).
+// 2. Movimento: Devemos respeitar 'prefers-reduced-motion'.
+
+// Nesse caso usaremos movimento como exemplo!
+
+// Nós já fizemos o principal no CSS.
+// O JS entra se a animação for controlada por JS 
+
+// Podemos "checar" a preferência do usuário no JS:
+const usuarioPrefereMenosMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+//  No caso estamos manipulando esse comportamento via css, 
+//  mas caso a animação fosse controlada por JS teriamos 
+//  que fazer uma logica semelhante a essa:
+
+if (usuarioPrefereMenosMovimento) {
+     console.log("Usuário pediu menos movimento. Não vamos animar!");
+     // Aqui você pularia a lógica de animação.
+ } else {
+    console.log("Animação liberada!");
+     // Aqui você rodaria a animação.
+}
+
+
+//desafios
+
+// 1. Abra o DevTools (F12).
+//    Vá em '...' > 'More tools' > 'Rendering'.
+//    Procure por "Emulate CSS media feature prefers-reduced-motion"
+//    e marque "reduce".
+//    Veja o que acontece com o ".box-animado" no HTML.
+//    (Ele deve parar de chacoalhar).
+//    Descomente o 'if/else' acima e veja o console log mudar
+//    de acordo com a sua escolha no DevTools.
+
+
+//------------------------------------------------------------
+// Tópico 3: Não Use Cor Sozinha (WCAG 1.4.1)
+// Princípio: PERCEPTÍVEL
+// "E se eu for daltônico ou tiver baixa visão?"
+
+// 1. Contraste (WCAG 1.4.3):
+//    O texto "Eu sou um texto difícil de ler" tem um contraste
+//    de 2.67:1. O mínimo (AA) é 4.5:1.
+
+// exemplo de pagina de verificação contraste de cores
+// https://coolors.co/contrast-checker 
+
+// 2. Não usar cor sozinha:
+//    Se um formulário dá erro, não podemos SÓ deixar o texto
+//    vermelho. Precisamos de um ÍCONE ou de uma MENSAGEM DE TEXTO NOVA.
+
+
+//desafios
+
+// Vamos simular um erro de formulário acessível.
+
+// 1. mude a cor do texto "Eu sou um texto difícil de ler" para uma
+// cor que tenha um contraste de 4.5 em relação a cor do fundo
+
+textoRuim = document.getElementById("texto-contraste-ruim")
+textoRuim.style.color = '#712727'
+
+// 2. Capture o input (id "email") e a mensagem (id "msg-erro").
+//    Simule um erro no envio do texto ao apertar o input do forms
+//    (Altere a visibilidade da 'msg-erro' com o estilo 'display = "block"'
+//    e mude a cor com estilo 'color = "red"')
+
+let email = document.getElementById("email")
+msgErro = document.getElementById("msg-erro")
+msgErro.style.color = 'red'
+msgErro.style.display = 'none'
+//capture o paragrafo de erro que vamos simular aqui
+
+let btn = document.getElementById("btn")
+btn.addEventListener("submit", (e)=>{
+    e.preventDefault()
+    msgErro.style.display = 'block'
+})
+
+
+// form.addEventListener("submit", (e)=>{
+    e.preventDefault();
+// 
+
+// //simule o aparecimento do erro aqui
+
+
+// })
+
+</script>
+</html>

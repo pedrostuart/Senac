@@ -1,0 +1,37 @@
+body{
+    background-color: #d9d9d9;
+    font-family: sans-serif;
+}
+button{
+    padding: 10px;
+    border: 0;
+    background-color: gray;
+    border-radius: 5px;
+    color: white;
+}
+button:hover{
+    background-color: rgb(65, 65, 65);
+}
+main{
+    max-width: 1100PX;
+    margin: auto;
+    
+}
+.conteudo{
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.conteudo div{
+    width: 300px;
+    height: 430px;
+    background-color: white;
+    padding: 10px;
+    margin: 10px;
+}
+
+.conteudo img{
+    width: 300px;
+    height: 200px;
+}
